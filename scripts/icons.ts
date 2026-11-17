@@ -9,7 +9,7 @@ mkdirSync(OUT, { recursive: true });
 const missing: string[] = [];
 for (const w of WORDS) {
   const dest = `${OUT}/${w.id}.svg`;
-  if (!w.emoji) { if (!existsSync(`${OUT}/${w.id}.webp`) && !existsSync(dest)) missing.push(w.word); continue; }
+  if (!w.emoji) { const f = w.pic === 'generated' ? `${OUT}/${w.id}.webp` : dest; if (!existsSync(f)) missing.push(w.word); continue; }
   const code = emojiCode(w.emoji);
   const cands = [code, code.replace(/-FE0F/g, '')];
   const hit = cands.map((c) => `${SRC}/${c}.svg`).find(existsSync);

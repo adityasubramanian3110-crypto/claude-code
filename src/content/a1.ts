@@ -9,11 +9,15 @@ export interface Word {
   word: string;
   art: string; // el, la, los, las
   g: Gender;
-  emoji: string;
+  emoji: string; // '' = no emoji: see `pic`
   topic: string;
+  pic?: 'drawn' | 'generated'; // drawn: hand-made SVG in public/img; generated: AI image (webp)
 }
 
 type Row = [word: string, art: string, emoji: string];
+
+// Words with no OpenMoji icon, and how their picture is made.
+const PIC: Record<string, Word['pic']> = { mesa: 'drawn' };
 
 const T: Record<string, Row[]> = {
   comida: [
@@ -98,6 +102,7 @@ export const WORDS: Word[] = Object.entries(T).flatMap(([topic, rows]) =>
     g: (FEM_EXCEPTIONS.has(word) || art === 'la' || art === 'las' ? 'f' : 'm') as Gender,
     emoji,
     topic,
+    ...(PIC[word] ? { pic: PIC[word] } : {}),
   })),
 );
 

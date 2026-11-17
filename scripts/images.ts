@@ -1,4 +1,4 @@
-// Generates an illustration for each A1 word that has no OpenMoji icon (emoji: ''),
+// Generates an illustration for each A1 word marked pic: 'generated' (no OpenMoji icon),
 // styled to sit beside OpenMoji: flat colours, thick black outline, no text.
 // Run: AZURE_OPENAI_RESOURCE=<name> AZURE_OPENAI_IMAGE_DEPLOYMENT=<deployment> npm run images
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -14,7 +14,7 @@ if (!RESOURCE || !DEPLOYMENT) throw new Error('Set AZURE_OPENAI_RESOURCE and AZU
 const SUBJECT: Record<string, string> = { mesa: 'a simple wooden dining table with four legs' };
 
 mkdirSync('public/img', { recursive: true });
-for (const w of WORDS.filter((x) => !x.emoji)) {
+for (const w of WORDS.filter((x) => x.pic === 'generated')) {
   const out = `public/img/${w.id}.webp`;
   if (existsSync(out)) continue;
   const subject = SUBJECT[w.word] ?? `a ${w.word} (Spanish word)`;

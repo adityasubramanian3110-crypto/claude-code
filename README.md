@@ -31,7 +31,7 @@ Content is plain TypeScript in `src/content/` (`rung0.ts`, `a1.ts`). After chang
 | Step | Command | Needs |
 | --- | --- | --- |
 | Icons | `npm run icons` copies the OpenMoji SVG per word into `public/img/` and lists words with no icon | nothing |
-| Generated images | `npm run images` makes an image for words with no icon (`emoji: ''`), currently only *mesa* | `AZURE_OPENAI_RESOURCE`, `AZURE_OPENAI_IMAGE_DEPLOYMENT`, plus `AZURE_OPENAI_KEY` (or a proxy-injected key) |
+| Generated images | `npm run images` makes an image for words marked `pic: 'generated'` (none yet: *mesa*, the only word with no emoji, is hand-drawn in `public/img/w-mesa.svg`) | `AZURE_OPENAI_RESOURCE`, `AZURE_OPENAI_IMAGE_DEPLOYMENT`, plus `AZURE_OPENAI_KEY` (or a proxy-injected key) |
 | Audio | `npm run audio` synthesises every clip with es-MX Dalia and Jorge into `public/audio/`. Existing files are skipped | `AZURE_SPEECH_KEY` (or a proxy-injected key), optionally `AZURE_SPEECH_REGION` (default `eastus`) |
 | App icons | `npm run app-icons` renders `public/favicon.svg` to the manifest PNGs | Playwright |
 

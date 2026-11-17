@@ -142,7 +142,7 @@ export function wordAudio(word: Word, voice: string) {
 }
 
 export function wordImage(word: Word) {
-  return `${import.meta.env.BASE_URL}img/${word.id}.${word.emoji ? 'svg' : 'webp'}`;
+  return `${import.meta.env.BASE_URL}img/${word.id}.${word.pic === 'generated' ? 'webp' : 'svg'}`;
 }
 
 export function pickVoice(pref: 'both' | 'dalia' | 'jorge'): string {
