@@ -32,8 +32,14 @@ async function dbCounts(p) {
   p.on('pageerror', (e) => errors.push(String(e)));
   p.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
   p.on('dialog', (d) => d.accept());
-  let soundReqs = [];
-  p.on('request', (r) => { if (r.url().includes('/audio/sound/')) soundReqs.push(r.url()); });
+  // Record every clip the app plays, straight from the audio element (works even when the
+  // browser replays a clip from its media cache without a network request).
+  await p.addInitScript(() => {
+    window.__played = [];
+    const play = HTMLMediaElement.prototype.play;
+    HTMLMediaElement.prototype.play = function () { window.__played.push(this.src); return play.call(this); };
+  });
+  const lastSound = async () => (await p.evaluate(() => window.__played.filter((u) => u.includes('/audio/sound/')))).at(-1);
 
   // 1. Install and offline shell
   await p.goto(URL);
@@ -66,21 +72,22 @@ async function dbCounts(p) {
     if (await p.locator('text=¡Listo!').count()) break;
     try {
       if (await p.locator('button:has-text("Test me")').count()) {
-        kinds.push('s'); soundReqs = [];
+        kinds.push('s');
         await p.click('button:has-text("Test me")');
         await p.waitForTimeout(900);
         continue;
       }
       if (await p.locator('.pair-btn:not([disabled])').count()) {
-        if (!kinds.length || soundReqs.length === 0) { soundReqs = []; await p.click('.listen'); await p.waitForTimeout(600); }
-        const target = soundReqs.at(-1).split('/').pop().split('.')[0];
+        await p.evaluate(() => { window.__played = []; });
+        await p.click('.listen'); await p.waitForTimeout(400);
+        const target = (await lastSound()).split('/').pop().split('.')[0];
         const btns = await p.locator('.pair-btn').allTextContents();
         const correctIdx = btns.findIndex((t) => slug(t.trim()) === target);
         const pick = wantWrong ? 1 - correctIdx : correctIdx;
         await p.locator('.pair-btn').nth(pick).click();
         const verdict = await p.textContent('.verdict');
         if (wantWrong) { sound.wrong += verdict.startsWith('Era') ? 1 : 0; wantWrong = false; } else sound.right += verdict === '¡Sí!' ? 1 : 0;
-        await p.click('button:has-text("Next")'); soundReqs = [];
+        await p.click('button:has-text("Next")');
         continue;
       }
       if (await p.locator('button:has-text("Got it")').count()) {
