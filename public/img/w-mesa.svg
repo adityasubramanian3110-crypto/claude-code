@@ -1,0 +1,15 @@
+<svg id="emoji" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hand-drawn for Escalera in the OpenMoji style (no table emoji exists). -->
+  <g id="color">
+    <path fill="#6a462f" d="M20,35h4v18h-4z M48,35h4v18h-4z"/>
+    <path fill="#debb90" d="M17,22H55l7,9H10Z"/>
+    <path fill="#a57939" d="M10,31H62v5H10Z"/>
+    <path fill="#a57939" d="M13,36h5v25h-5z M54,36h5v25h-5z"/>
+  </g>
+  <g id="line" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+    <path d="M20,36v17h4V36 M48,36v17h4V36"/>
+    <path d="M17,22H55l7,9v5H10V31Z"/>
+    <path d="M10,31H62"/>
+    <path d="M13,36v25h5V36 M54,36v25h5V36"/>
+  </g>
+</svg>
