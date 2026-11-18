@@ -37,6 +37,8 @@ Content is plain TypeScript in `src/content/` (`rung0.ts`, `a1.ts`). After chang
 
 Generated audio and images are committed, so the deploy needs no secrets.
 
+Behind an HTTPS proxy (as in Claude Code cloud sessions), run the audio script with `NODE_USE_ENV_PROXY=1`, so Node's `fetch` uses the proxy.
+
 ## Layout
 
 ```
