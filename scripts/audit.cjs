@@ -3,7 +3,8 @@
 const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const OUT = process.argv[2];
-const URL = 'http://localhost:4173/claude-code/';
+// AUDIT_URL=https://<user>.github.io/<repo>/ audits the live site instead of a local build.
+const URL = process.env.AUDIT_URL || 'http://localhost:4173/claude-code/';
 const results = [];
 const check = (name, ok, detail = '') => { results.push({ name, ok: !!ok, detail: String(detail) }); console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? '  — ' + detail : ''}`); };
 const slug = (s) => s.toLowerCase().normalize('NFC').replace(/[áéíóúüñ]/g, (c) => ({ á: 'a_', é: 'e_', í: 'i_', ó: 'o_', ú: 'u_', ü: 'u__', ñ: 'n_' })[c]).replace(/[^a-z0-9_]/g, '-');
