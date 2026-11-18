@@ -21,6 +21,7 @@ An installable PWA for Android Chrome that teaches Latin American Spanish. It fo
 npm install
 npm run dev        # http://localhost:5173/claude-code/
 npm test           # scheduler, queue, content and storage tests
+npm run audit      # end-to-end check of every v1 feature on an emulated Pixel 7 (22 checks)
 npm run build      # production build + service worker in dist/
 ```
 

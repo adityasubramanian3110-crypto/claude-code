@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SoundCard } from '../components/SoundCard';
 import { PictureCard } from '../components/PictureCard';
 import { addReview, addSession, putCard, type CardRow } from '../lib/db';
@@ -22,8 +22,42 @@ interface Run {
 export function Study({ snap, onDone }: { snap: Snapshot; onDone: () => void }) {
   const [run, setRun] = useState<Run | null>(null);
   const [finished, setFinished] = useState<Run | null>(null);
-  const saved = useRef(false);
+  // How much of the running session is already logged: time, cards and new cards.
+  const logged = useRef({ until: 0, items: 0, newItems: 0 });
   const busy = useRef(false);
+  /** Log the part of the session since the last log (called on finish and whenever the app is hidden). */
+  function logSegment(r: Run) {
+    const l = logged.current;
+    const end = Date.now();
+    const items = r.seen.size - l.items;
+    if (end - l.until < 5000 && !items) return Promise.resolve();
+    logged.current = { until: end, items: r.seen.size, newItems: r.newSeen };
+    return addSession({ mode: 'study', start: l.until, end, items, newItems: r.newSeen - l.newItems });
+  }
+  const live = useRef<Run | null>(null); // the running session, for logging if the screen is left
+  const [, tick] = useState(0);
+  live.current = run;
+
+  // Hide the tab bar only while a session is running.
+  useEffect(() => {
+    document.body.toggleAttribute('data-session', !!run);
+    return () => document.body.removeAttribute('data-session');
+  }, [run]);
+
+  // Keep the minutes-left counter moving between cards.
+  useEffect(() => {
+    if (!run) return;
+    const t = setInterval(() => tick((n) => n + 1), 15000);
+    return () => clearInterval(t);
+  }, [run]);
+
+  // Leaving mid-session (Android back button, closing the app) still logs the time studied.
+  useEffect(() => {
+    const save = () => { if (live.current) logSegment(live.current); };
+    const onHide = () => { if (document.visibilityState === 'hidden') save(); };
+    document.addEventListener('visibilitychange', onHide);
+    return () => { document.removeEventListener('visibilitychange', onHide); save(); stop(); };
+  }, []);
 
   const newAllowed = Math.max(0, snap.settings.newPerDay - snap.newToday);
   const preview = buildQueue(snap.cards, new Date(), newAllowed);
@@ -32,7 +66,7 @@ export function Study({ snap, onDone }: { snap: Snapshot; onDone: () => void }) 
 
   const begin = () => {
     const now = Date.now();
-    saved.current = false;
+    logged.current = { until: now, items: 0, newItems: 0 };
     setRun({
       queue: preview,
       rows: new Map(snap.cards.map((r) => [r.id, r])),
@@ -49,10 +83,7 @@ export function Study({ snap, onDone }: { snap: Snapshot; onDone: () => void }) 
 
   const finish = async (r: Run) => {
     stop();
-    if (!saved.current && r.seen.size) {
-      saved.current = true;
-      await addSession({ mode: 'study', start: r.start, end: Date.now(), items: r.seen.size, newItems: r.newSeen });
-    }
+    await logSegment(r);
     setRun(null);
     setFinished(r);
   };
@@ -107,7 +138,9 @@ export function Study({ snap, onDone }: { snap: Snapshot; onDone: () => void }) 
     await addReview({ cardId: after.id, rating: grade, ts: now.getTime(), state: before.fsrs.state, ...extra });
 
     const queue = run.queue.slice(1);
-    const pos = requeuePosition(after, now, run.endsAt, queue.length);
+    // Bring learning cards back only while other cards remain; otherwise the same card would
+    // repeat back-to-back. It stays due and opens the next session.
+    const pos = queue.length ? requeuePosition(after, now, run.endsAt, queue.length) : null;
     if (pos !== null) queue.splice(pos, 0, { id: after.id, isNew: false });
     const next: Run = {
       ...run,

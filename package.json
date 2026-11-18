@@ -12,7 +12,8 @@
     "icons": "node --experimental-strip-types scripts/icons.ts",
     "audio": "node --experimental-strip-types scripts/audio.ts",
     "images": "node --experimental-strip-types scripts/images.ts",
-    "app-icons": "NODE_PATH=$(npm root -g) node scripts/app-icons.cjs"
+    "app-icons": "NODE_PATH=$(npm root -g) node scripts/app-icons.cjs",
+    "audit": "bash scripts/audit.sh"
   },
   "dependencies": {
     "idb": "^8.0.4",

@@ -35,7 +35,8 @@ export default function App() {
         {route === 'words' && <Words snap={snap} />}
         {route === 'settings' && <Settings snap={snap} onChange={reload} />}
       </main>
-      {route !== 'study' && (
+      {/* Hidden while a study session runs (Study sets body[data-session]) so the card has the whole screen. */}
+      {(
         <nav className="tabbar">
           {([['home', '⌂', 'Home'], ['study', '▶', 'Study'], ['words', '▦', 'Words'], ['settings', '⚙', 'Settings']] as const).map(
             ([r, icon, label]) => (
